@@ -86,7 +86,7 @@ function renderStory() {
 /* =====================================================
    4. GALERI & LIGHTBOX
    ===================================================== */
-let lbIndex = 0;
+let lbIndex = 0, lbBusy = false;
 function renderGallery() {
   const g = $("#gallery");
   CONFIG.gallery.forEach((src, i) => {
@@ -94,18 +94,39 @@ function renderGallery() {
     b.className = "rv"; b.onclick = () => openLb(i); g.append(b);
   });
 }
-function showLb(i) {
-  lbIndex = (i + CONFIG.gallery.length) % CONFIG.gallery.length;
-  const img = $("#lbImg"); img.src = CONFIG.gallery[lbIndex]; img.alt = `Foto galeri ${lbIndex + 1}`;
+function showLb(i, dir = 0) {                       // dir: 1 = berikutnya, -1 = sebelumnya, 0 = langsung
+  const n = CONFIG.gallery.length, idx = (i + n) % n, img = $("#lbImg"), src = CONFIG.gallery[idx];
+  const set = () => { lbIndex = idx; img.src = src; img.alt = `Foto galeri ${idx + 1}`; };
+  if (!dir || reduceMotion || $("#lb").hidden) return set();
+  if (lbBusy) return;                               // abaikan ketukan saat animasi masih jalan
+  lbBusy = true;
+  const pre = new Image(); pre.src = src;
+  const out = img.animate([{ opacity: 1, transform: "translateX(0)" }, { opacity: 0, transform: `translateX(${-dir * 70}px)` }],
+    { duration: 250, easing: "ease-in", fill: "forwards" });
+  Promise.all([out.finished, pre.decode().catch(() => {})]).then(() => {
+    set();
+    const inn = img.animate([{ opacity: 0, transform: `translateX(${dir * 70}px)` }, { opacity: 1, transform: "translateX(0)" }],
+      { duration: 400, easing: "cubic-bezier(.22,.61,.36,1)", fill: "forwards" });
+    out.cancel();
+    inn.finished.then(() => { inn.cancel(); lbBusy = false; });
+  });
 }
 function openLb(i) { showLb(i); $("#lb").hidden = false; document.body.classList.add("locked"); $(".lb-b.x").focus(); }
 function closeLb() { $("#lb").hidden = true; document.body.classList.remove("locked"); }
 function initLightbox() {
-  $(".lb-b.x").onclick = closeLb; $(".lb-b.p").onclick = () => showLb(lbIndex - 1); $(".lb-b.n").onclick = () => showLb(lbIndex + 1);
+  const go = d => showLb(lbIndex + d, d);
+  $(".lb-b.x").onclick = closeLb; $(".lb-b.p").onclick = () => go(-1); $(".lb-b.n").onclick = () => go(1);
   $("#lb").onclick = e => { if (e.target.id === "lb") closeLb(); };
   addEventListener("keydown", e => {
     if ($("#lb").hidden) return;
-    if (e.key === "Escape") closeLb(); if (e.key === "ArrowLeft") showLb(lbIndex - 1); if (e.key === "ArrowRight") showLb(lbIndex + 1);
+    if (e.key === "Escape") closeLb(); if (e.key === "ArrowLeft") go(-1); if (e.key === "ArrowRight") go(1);
+  });
+  let x0 = null;                                    // geser jari di HP
+  $("#lb").addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+  $("#lb").addEventListener("touchend", e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
   });
 }
 
