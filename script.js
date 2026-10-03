@@ -11,9 +11,9 @@ const CONFIG = {
   bride: { initial: "S", nick: "Selvi", full: "Selvi Rahma Sari", father: "Bapak Edi Imran (alm)", mother: "Ibu Susanti", ig: "selvy_rahmasari", photo: "assets/images/bride.jpeg" },
   groom: { initial: "I", nick: "Ichsan", full: "Teguh Maulana Ichsan", father: "Bapak Zulhifansyah", mother: "Ibu Marsini", ig: "ichsan.2305", photo: "assets/images/groom.png" },
   events: [
-    { title: "Akad Nikah", day: "Rabu", date: "18 November 2026", time: "08.00 WIB - selesai", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
+    { title: "Akad Nikah", day: "Rabu", date: "18 November 2026", time: "08.00 WIB - 10.00", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
       maps: "https://maps.app.goo.gl/Jexj9GFyGWgqDvEA7", start: "2027-03-20T08:00:00+08:00", end: "2027-03-20T10:00:00+08:00", calendar: "" },
-    { title: "Resepsi", day: "Rabu", date: "18 November 2026", time: "11.00 - 16.00 WIB", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
+    { title: "Resepsi", day: "Rabu", date: "18 November 2026", time: "10.00 - Selesai WIB", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
       maps: "https://maps.app.goo.gl/Jexj9GFyGWgqDvEA7", start: "2027-03-20T11:00:00+08:00", end: "2027-03-20T14:00:00+08:00", calendar: "" }
   ],
   // story: [
@@ -23,7 +23,10 @@ const CONFIG = {
   //   { title: "Menikah", year: "2027", text: "[Ceritakan harapan di hari pernikahan.]" }
   // ],
   gallery: ["g1", "g2", "g3", "g4", "g5", "g6"].map(n => `assets/images/${n}.jpg`),
-  gift: { bank: "Bank BRI", no: "215101003044539", name: "SELVI RAHMA SARI", qr: "assets/images/qris.png" }
+  gifts: [
+          { bank: "Bank BRI", no: "215101003044539", name: "SELVI RAHMA SARI" },
+          { bank: "Bank BRI", no: "062201066865501", name: "Teguh Maulana Ichsan" }
+]
 };
 
 /* =====================================================
@@ -216,13 +219,17 @@ function initWishes() {
    7. GIFT, MUSIK, NAVIGASI, SCROLL
    ===================================================== */
 function initGift() {
-  const t = $("#giftToggle"), box = $("#giftBox");
-  t.onclick = () => { box.hidden = !box.hidden; t.setAttribute("aria-expanded", !box.hidden); t.textContent = box.hidden ? "Lihat Informasi Rekening" : "Sembunyikan Rekening"; };
-  $("#copyBtn").onclick = async () => {
-    try { await navigator.clipboard.writeText(CONFIG.gift.no); }
-    catch { const i = el("input", { value: CONFIG.gift.no }); document.body.append(i); i.select(); document.execCommand("copy"); i.remove(); }
-    toast("Nomor rekening berhasil disalin");
-  };
+  const box = $("#giftBox");
+  CONFIG.gifts.forEach(g => {
+    const btn = el("button", { className: "btn", type: "button", textContent: "Salin Nomor Rekening" });
+    btn.onclick = async () => {
+      try { await navigator.clipboard.writeText(g.no); }
+      catch { const i = el("input", { value: g.no }); document.body.append(i); i.select(); document.execCommand("copy"); i.remove(); }
+      toast("Nomor rekening berhasil disalin");
+    };
+    box.append(el("div", { className: "card bank" }, el("b", { textContent: g.bank }),
+      el("p", { className: "no", textContent: g.no }), el("p", { textContent: "a.n. " + g.name }), btn));
+  });
 }
 function initMusic() {
   const a = $("#bgm"), b = $("#musicBtn"); a.src = CONFIG.music;
