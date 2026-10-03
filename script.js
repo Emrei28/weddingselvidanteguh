@@ -9,11 +9,11 @@ const CONFIG = {
   hero: "assets/images/hero.jpg",
   opening: "Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami. Merupakan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.",
   bride: { initial: "S", nick: "Selvi", full: "Selvi Rahma Sari", father: "Bapak Edi Imran (alm)", mother: "Ibu Susanti", ig: "selvy_rahmasari", photo: "assets/images/bride.jpeg" },
-  groom: { initial: "T", nick: "Teguh", full: "Teguh Maulana Ichsan", father: "Bapak Zulhifansyah", mother: "Ibu Marsini", ig: "ichsan.2305", photo: "assets/images/groom.png" },
+  groom: { initial: "I", nick: "Ichsan", full: "Teguh Maulana Ichsan", father: "Bapak Zulhifansyah", mother: "Ibu Marsini", ig: "ichsan.2305", photo: "assets/images/groom.png" },
   events: [
-    { title: "Akad Nikah", day: "Rabu", date: "18 November 2026", time: "08.00 WITA - selesai", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
+    { title: "Akad Nikah", day: "Rabu", date: "18 November 2026", time: "08.00 WIB - selesai", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
       maps: "https://maps.app.goo.gl/Jexj9GFyGWgqDvEA7", start: "2027-03-20T08:00:00+08:00", end: "2027-03-20T10:00:00+08:00", calendar: "" },
-    { title: "Resepsi", day: "Rabu", date: "18 November 2026", time: "11.00 - 14.00 WITA", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
+    { title: "Resepsi", day: "Rabu", date: "18 November 2026", time: "11.00 - 16.00 WIB", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
       maps: "https://maps.app.goo.gl/Jexj9GFyGWgqDvEA7", start: "2027-03-20T11:00:00+08:00", end: "2027-03-20T14:00:00+08:00", calendar: "" }
   ],
   // story: [
@@ -221,7 +221,7 @@ function initNav() {
   top.onclick = () => scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
 }
 function initReveal() {
-  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .15 });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .2, rootMargin: "0px 0px -8% 0px" });
   $$(".rv").forEach(n => io.observe(n));
 }
 
