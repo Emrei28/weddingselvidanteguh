@@ -11,9 +11,9 @@ const CONFIG = {
   bride: { initial: "S", nick: "Selvi", full: "Selvi Rahma Sari", father: "Bapak Edi Imran (alm)", mother: "Ibu Susanti", ig: "selvy_rahmasari", photo: "assets/images/bride.jpeg" },
   groom: { initial: "I", nick: "Ichsan", full: "Teguh Maulana Ichsan", father: "Bapak Zulhifansyah", mother: "Ibu Marsini", ig: "ichsan.2305", photo: "assets/images/groom.png" },
   events: [
-    { title: "Akad Nikah", day: "Rabu", date: "18 November 2026", time: "08.00 WIB - 10.00", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
+    { title: "Akad Nikah", day: "Rabu", date: "18 November 2026", time: "08.00 WIB - 10.00 WIB", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
       maps: "https://maps.app.goo.gl/Jexj9GFyGWgqDvEA7", start: "2027-03-20T08:00:00+08:00", end: "2027-03-20T10:00:00+08:00", calendar: "" },
-    { title: "Resepsi", day: "Rabu", date: "18 November 2026", time: "10.00 - Selesai WIB", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
+    { title: "Resepsi", day: "Rabu", date: "18 November 2026", time: "10.00 - Selesai", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
       maps: "https://maps.app.goo.gl/Jexj9GFyGWgqDvEA7", start: "2027-03-20T11:00:00+08:00", end: "2027-03-20T14:00:00+08:00", calendar: "" }
   ],
   // story: [
@@ -25,7 +25,7 @@ const CONFIG = {
   gallery: ["g1", "g2", "g3", "g4", "g5", "g6"].map(n => `assets/images/${n}.jpg`),
   gifts: [
           { bank: "Bank BRI", no: "215101003044539", name: "SELVI RAHMA SARI" },
-          { bank: "Bank BRI", no: "062201066865501", name: "Teguh Maulana Ichsan" }
+          { bank: "Bank BRI", no: "062201066865501", name: "TEGUH MAULANA ICHSAN" }
 ]
 };
 
