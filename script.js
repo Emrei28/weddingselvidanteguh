@@ -2,13 +2,14 @@
    1. CONFIG — SEMUA DATA UNDANGAN DIUBAH DI SINI SAJA
    ===================================================== */
 const CONFIG = {
+  api: "https://script.google.com/macros/s/AKfycbyCEf08XEoZlsdGZDkDKOHsc6ot6Gy_UXIErTzuNdkmUM5iJDac1pea35bKzYeZzj0P7Q/exec",
   date: "2026-11-18T08:00:00+08:00",          // tanggal & jam (dipakai countdown)
   dateText: "Rabu, 18 November 2026",
   music: "assets/music/song.mp3",
   hero: "assets/images/hero.jpg",
   opening: "Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami. Merupakan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.",
   bride: { initial: "S", nick: "Selvi", full: "Selvi Rahma Sari", father: "Bapak Edi Imran (alm)", mother: "Ibu Susanti", ig: "selvy_rahmasari", photo: "assets/images/bride.jpeg" },
-  groom: { initial: "T", nick: "Teguh", full: "Teguh Maulana Ichsan", father: "Bapak Zulhifanssyah", mother: "Ibu Marsini", ig: "ichsan.2305", photo: "assets/images/groom.png" },
+  groom: { initial: "T", nick: "Teguh", full: "Teguh Maulana Ichsan", father: "Bapak Zulhifansyah", mother: "Ibu Marsini", ig: "ichsan.2305", photo: "assets/images/groom.png" },
   events: [
     { title: "Akad Nikah", day: "Rabu", date: "18 November 2026", time: "08.00 WITA - selesai", place: "Kediaman Mempelai Wanita", addr: "Jl.TELUK BANO 1 KEC BANGKO PUSAKO KABUPATEN ROKAN HILIR",
       maps: "https://maps.app.goo.gl/Jexj9GFyGWgqDvEA7", start: "2027-03-20T08:00:00+08:00", end: "2027-03-20T10:00:00+08:00", calendar: "" },
@@ -129,15 +130,27 @@ function setErr(input, msg) {
   const s = input.closest("label,fieldset").querySelector(".err"); if (s) s.textContent = msg;
   input.classList?.toggle("bad", !!msg);
 }
-/* GANTI fungsi ini untuk menyambung ke Firebase / Google Sheets / backend lain.
-   Contoh: return fetch("URL_API_ANDA", {method:"POST", body: JSON.stringify(data)}); */
-async function saveRSVP(data) {
-  await new Promise(r => setTimeout(r, 900));               // simulasi jaringan
-  const list = JSON.parse(localStorage.getItem("rsvp") || "[]"); list.push({ ...data, at: Date.now() });
-  localStorage.setItem("rsvp", JSON.stringify(list));
+
+/* ===== KIRIM & AMBIL DATA (Google Sheets lewat Apps Script) ===== */
+async function send(type, data) {
+  if (!CONFIG.api) {                                   // mode demo tanpa database
+    const k = type === "rsvp" ? "rsvp" : "wishes", l = JSON.parse(localStorage.getItem(k) || "[]");
+    l.unshift({ ...data, at: Date.now() }); localStorage.setItem(k, JSON.stringify(l.slice(0, 100))); return;
+  }
+  const r = await fetch(CONFIG.api, { method: "POST", body: JSON.stringify({ type, ...data }) });
+  if (!r.ok) throw new Error("gagal");
 }
+async function loadWishes() {
+  if (!CONFIG.api) return JSON.parse(localStorage.getItem("wishes") || "[]");
+  return (await fetch(CONFIG.api)).json();
+}
+// nama tamu dari link (?to=...) dipakai untuk mengisi form RSVP
+const guestName = () => (new URLSearchParams(location.search).get("to") || "").trim().slice(0, 60);
+
 function initRSVP() {
   const f = $("#rsvpForm"), btn = $("#rsvpBtn");
+  f.name.value = guestName();                        // nama otomatis dari ?to=
+  f.name.readOnly = !!guestName();                   // hapus baris ini kalau nama boleh diubah tamu
   f.onsubmit = async e => {
     e.preventDefault();
     const name = f.name.value.trim(), status = f.status.value, count = +f.count.value; let ok = true;
@@ -146,29 +159,34 @@ function initRSVP() {
     setErr(f.count, count >= 1 && count <= 10 ? "" : "Jumlah tamu 1-10 orang."); ok = ok && count >= 1 && count <= 10;
     if (!ok) return;
     btn.disabled = true; btn.textContent = "Mengirim...";
-    try { await saveRSVP({ name, status, count, note: f.note.value.trim() }); f.reset(); toast("Konfirmasi terkirim. Terima kasih!"); }
-    catch { toast("Gagal mengirim. Coba lagi."); }
+    try {
+      await send("rsvp", { name, status, count, note: f.note.value.trim() });
+      f.reset(); f.name.value = guestName() || name;
+      toast("Konfirmasi terkirim. Terima kasih!");
+    } catch { toast("Gagal mengirim. Coba lagi."); }
     btn.disabled = false; btn.textContent = "Kirim Konfirmasi";
   };
 }
-/* GANTI dua fungsi ini jika memakai database online (mis. Firestore). */
-const loadWishes = () => JSON.parse(localStorage.getItem("wishes") || "[]");
-const storeWish = w => { const l = loadWishes(); l.unshift(w); localStorage.setItem("wishes", JSON.stringify(l.slice(0, 100))); };
-function renderWishes() {
-  const box = $("#wishes"); box.replaceChildren();
-  const list = loadWishes();
+async function renderWishes() {
+  const box = $("#wishes"); box.replaceChildren(el("p", { textContent: "Memuat ucapan..." }));
+  let list = [];
+  try { list = await loadWishes(); } catch { return box.replaceChildren(el("p", { textContent: "Ucapan belum bisa dimuat." })); }
+  box.replaceChildren();
   if (!list.length) return box.append(el("p", { textContent: "Jadilah yang pertama mengirim ucapan." }));
   list.forEach(w => box.append(el("div", { className: "card" }, el("b", { textContent: w.name }),
     el("time", { textContent: new Date(w.at).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" }) }), el("p", { textContent: w.msg }))));
 }
 function initWishes() {
-  const f = $("#wishForm");
-  f.onsubmit = e => {
+  const f = $("#wishForm"), btn = f.querySelector("button");
+  f.onsubmit = async e => {
     e.preventDefault();
     const name = f.name.value.trim(), msg = f.msg.value.trim();
     setErr(f.name, name ? "" : "Isi nama Anda."); setErr(f.msg, msg ? "" : "Tulis ucapan atau doa.");
     if (!name || !msg) return;
-    storeWish({ name, msg, at: Date.now() }); f.reset(); renderWishes(); toast("Ucapan terkirim. Terima kasih!");
+    btn.disabled = true; btn.textContent = "Mengirim...";
+    try { await send("wish", { name, msg }); f.reset(); renderWishes(); toast("Ucapan terkirim. Terima kasih!"); }
+    catch { toast("Gagal mengirim. Coba lagi."); }
+    btn.disabled = false; btn.textContent = "Kirim Ucapan";
   };
   renderWishes();
 }
