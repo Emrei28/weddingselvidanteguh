@@ -23,7 +23,7 @@ const CONFIG = {
   //   { title: "Menikah", year: "2027", text: "[Ceritakan harapan di hari pernikahan.]" }
   // ],
   gallery: ["g1", "g2", "g3", "g4", "g5", "g6"].map(n => `assets/images/${n}.jpg`),
-  gift: { bank: "Bank [Nama Bank]", no: "1234567890", name: "[Nama Pemilik]", qr: "assets/images/qris.png" }
+  gift: { bank: "Bank BRI", no: "215101003044539", name: "SELVI RAHMA SARI", qr: "assets/images/qris.png" }
 };
 
 /* =====================================================
